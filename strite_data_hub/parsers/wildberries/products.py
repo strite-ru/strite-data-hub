@@ -179,4 +179,3 @@ class WbProduct:
                                       "vendorCodes": codes
                                   })
             yield from (cls.parse_from_dict(_p) for _p in raw_data['data'])
-

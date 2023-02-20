@@ -144,33 +144,37 @@ class WbSupply:
         )
 
     def get_orders(self, api_data: dict) -> list[WbOrder]:
-        raw_data = wb_new_get(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/orders",
-                              api_data['marketplace'], None)
+        raw_data = wb_request(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/orders",
+                              api_data,
+                              version="new",
+                              method="GET")
 
         for _o in raw_data['orders']:
             yield WbOrder.parse_from_dict({**_o, 'deliveryType': 'fbs'})
 
-    def add_order(self, api_data: dict, order_id: int, test: bool = False) -> bool:
-        if not test:
-            wb_new_patch(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/orders/{order_id}",
-                         api_data['marketplace'], None, None)
-        return True
+    def add_order(self, api_data: dict, order_id: int) -> None:
+        wb_request(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/orders/{order_id}",
+                   api_data,
+                   version="new",
+                   method="PATCH")
 
-    def close(self, api_data: dict, test: bool = False) -> bool:
-        if not test:
-            wb_new_patch(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/deliver",
-                         api_data['marketplace'], None, None)
-        return True
+    def close(self, api_data: dict) -> None:
+        wb_request(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/deliver",
+                   api_data,
+                   version="new",
+                   method="PATCH")
 
-    def cancel(self, api_data: dict, test: bool = False) -> bool:
-        if not test:
-            wb_new_patch(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/cancel",
-                         api_data['marketplace'], None, None)
-        return True
+    def cancel(self, api_data: dict) -> None:
+        wb_request(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/cancel",
+                   api_data,
+                   version="new",
+                   method="PATCH")
 
     def delete(self, api_data: dict):
-        wb_new_delete(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}", api_data['marketplace'], None)
-        return True
+        wb_request(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}",
+                   api_data,
+                   version="new",
+                   method="DELETE")
 
     @classmethod
     def get_supplies(cls, api_data: dict) -> list[Self]:
@@ -180,8 +184,11 @@ class WbSupply:
         }
 
         while True:
-            raw_data = wb_new_get("https://suppliers-api.wildberries.ru/api/v3/supplies", api_data['marketplace'],
-                                  query)
+            raw_data = wb_request("https://suppliers-api.wildberries.ru/api/v3/supplies",
+                                  api_data,
+                                  version="new",
+                                  method="GET",
+                                  params=query)
 
             for s_data in raw_data['supplies']:
                 yield cls.parse_from_dict(s_data)
@@ -193,12 +200,15 @@ class WbSupply:
 
     @classmethod
     def get_supply_by_id(cls, api_data: dict, supply_id: str) -> Self:
-        raw_data = wb_new_get(f'https://suppliers-api.wildberries.ru/api/v3/supplies/{supply_id}',
-                              api_data['marketplace'], None)
-        return cls.parse_from_dict(raw_data)
+        return cls.parse_from_dict(wb_request(f'https://suppliers-api.wildberries.ru/api/v3/supplies/{supply_id}',
+                                              api_data,
+                                              version="new",
+                                              method="GET"))
 
     @classmethod
     def create_supply(cls, api_data: dict, name: str) -> Self:
-        raw_data = wb_new_post("https://suppliers-api.wildberries.ru/api/v3/supplies", api_data['marketplace'], None,
-                               {'name': name})
-        return cls.get_supply_by_id(api_data, raw_data['id'])
+        return cls.get_supply_by_id(api_data, wb_request("https://suppliers-api.wildberries.ru/api/v3/supplies",
+                                                         api_data,
+                                                         version="new",
+                                                         method="POST",
+                                                         body={'name': name})['id'])
