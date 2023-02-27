@@ -1,21 +1,30 @@
-# Quick start
+# Getting started
 
-This guide will help you get started with the [Docker Engine](https://docs.docker.com/engine/).
+Этот 
+
 
 ## Prerequisites
 
-- A machine running [Docker Engine](https://docs.docker.com/engine/).
-- A [Docker Hub](https://hub.docker.com/) account.
-- A [Docker Cloud](https://cloud.docker.com/) account.
-- A [Docker Store](https://store.docker.com/) account.
-- A [Docker Trusted Registry](https://docs.docker.com/datacenter/dtr/2.2/guides/) account.
+-  [Python 3.11](https://www.python.org/downloads/release/python-3110/).
 
-## Step 1. Get Docker
+## Шаг 1. Получение доступов
 
-To get started with Docker, you need to install Docker Engine on your machine. Docker Engine is available for a variety of platforms, including:
+### Ozon
 
-- [Linux](https://docs.docker.com/engine/installation/linux/)
-- [Mac](https://docs.docker.com/engine/installation/mac/)
-- [Windows](https://docs.docker.com/engine/installation/windows/)
+```json
+{
+  "Client-Id": "xxx",
+  "Api-Key": "xxx"
+}
+```
+
+### Wildberries
+
+```json
+{
+  "statistics": "xxx",
+  "marketplace": "xxx"
+}
+```
 
 ## Step 2. Run the `hello-world` image

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Self, Optional, Any
 
-from .api import wb_request
+from .api import WildberriesAPI
 
 
 @dataclass(frozen=True)
@@ -123,10 +123,10 @@ class WbProduct:
         }
 
     @classmethod
-    def get_products(cls, api_data: dict) -> list[Self]:
+    def get_products(cls, api: WildberriesAPI) -> list[Self]:
         """
         Получение списка товаров из Wildberries
-        :param api_data: доступы к API
+        :param api: доступы к API
         :return: список товаров
         """
         # Тело запроса
@@ -148,11 +148,7 @@ class WbProduct:
         }
 
         while True:
-            raw_data = wb_request('https://suppliers-api.wildberries.ru/content/v1/cards/cursor/list',
-                                  api_data,
-                                  version="new",
-                                  method="POST",
-                                  body=body)
+            raw_data = api.marketplace_request(url="content/v1/cards/cursor/list", method="POST", body=body)
 
             # Возвращаем список товаров
             yield from (cls.parse_from_dict(_p) for _p in raw_data['data']['cards'])
@@ -165,17 +161,15 @@ class WbProduct:
             body['sort']['cursor']['nmID'] = raw_data['data']['cursor']['nmID']
 
     @classmethod
-    def get_products_by_codes(cls, api_data: dict, vendor_codes: list[str]):
+    def get_products_by_codes(cls, api: WildberriesAPI, vendor_codes: list[str]):
         def divide_chunks(l, n):
             for i in range(0, len(l), n):
                 yield l[i:i + n]
 
         for codes in divide_chunks(vendor_codes, 100):
-            raw_data = wb_request("https://suppliers-api.wildberries.ru/content/v1/cards/filter",
-                                  api_data,
-                                  version="new",
-                                  method="POST",
-                                  body={
-                                      "vendorCodes": codes
-                                  })
+            raw_data = api.marketplace_request(url="content/v1/cards/filter",
+                                               method="POST",
+                                               body={
+                                                   "vendorCodes": codes
+                                               })
             yield from (cls.parse_from_dict(_p) for _p in raw_data['data'])

@@ -1,4 +1,4 @@
-from strite_data_hub.parsers.ozon.orders import OzonPosting
+from strite_data_hub.parsers.ozon import OzonPosting
 
 
 def test_ozon_posting_parse():

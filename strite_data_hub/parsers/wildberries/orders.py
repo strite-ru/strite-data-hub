@@ -1,9 +1,11 @@
-import logging
 from dataclasses import dataclass
 from typing import Self, Optional, Literal
 from datetime import datetime
-from .api import wb_request
+from .api import WildberriesAPI
 from .products import WbProduct
+import logging
+
+logger = logging.getLogger("Strite")
 
 
 @dataclass(frozen=True)
@@ -38,44 +40,39 @@ class WbOrder:
     product: Optional[WbProduct] = None
     sticker: Optional[WbSticker] = None
 
-    def get_product(self, api_data: dict):
+    def get_product(self, api: WildberriesAPI):
         """
         Загружает информацию о товаре
-        :param api_data:
+        :param api:
         :return:
         """
-        search_result = WbProduct.get_products_by_codes(api_data, [self.vendor_code])
+        search_result = WbProduct.get_products_by_codes(api, [self.vendor_code])
         self.product = next(iter(item for item in search_result if item.vendor_code == self.vendor_code), None)
 
     @classmethod
-    def get_list_products(cls, api_data: dict, orders: list[Self]):
+    def get_list_products(cls, api: WildberriesAPI, orders: list[Self]):
         """
         Загружает информацию о товарах
-        :param api_data:
+        :param api:
         :param orders:
         :return:
         """
-        search_result = WbProduct.get_products_by_codes(api_data, [item.vendor_code for item in orders])
+        search_result = WbProduct.get_products_by_codes(api, [item.vendor_code for item in orders])
         for item in orders:
             item.product = next(iter(_item for _item in search_result if _item.vendor_code == item.vendor_code), None)
 
-    def cancel(self, api_data: dict) -> bool:
+    def cancel(self, api: WildberriesAPI) -> None:
         try:
-            wb_request(f"https://suppliers-api.wildberries.ru/api/v3/orders/{self.id}/cancel",
-                       api_data,
-                       version="new",
-                       method="PATCH")
+            api.marketplace_request(url=f"api/v3/orders/{self.id}/cancel", method="PATCH")
         except Exception as e:
-            logging.error(f"Error while canceling order {self.id}: {e}")
-            return False
-        return True
+            logger.error(msg := f"Error while canceling order {self.id}: {e}")
+            raise Exception(msg)
 
-    def get_sticker(self, api_data: dict):
-        raw_data = wb_request('https://suppliers-api.wildberries.ru/api/v3/orders/stickers',
-                              api_data,
-                              method="POST",
-                              params={'type': 'svg', 'width': 58, 'height': 40},
-                              body={'orders': [self.id]})
+    def get_sticker(self, api: WildberriesAPI):
+        raw_data = api.marketplace_request(url="api/v3/orders/stickers",
+                                           method="POST",
+                                           params={'type': 'svg', 'width': 58, 'height': 40},
+                                           body={'orders': [self.id]})
         if len(raw_data['stickers']) > 0:
             del raw_data['stickers'][0]['file']
             self.sticker = WbSticker(orderId=self.id, **raw_data['stickers'][0])
@@ -112,11 +109,8 @@ class WbOrder:
         }
 
     @classmethod
-    def get_new_orders(cls, api_data: dict) -> list[Self]:
-        raw_data = wb_request('https://suppliers-api.wildberries.ru/api/v3/orders/new',
-                              api_data,
-                              version="new",
-                              method="GET")
+    def get_new_orders(cls, api: WildberriesAPI) -> list[Self]:
+        raw_data = api.marketplace_request(url="api/v3/orders/new")
 
         for _o in raw_data['orders']:
             yield cls.parse_from_dict(_o)
@@ -143,52 +137,33 @@ class WbSupply:
             done=raw_item['done']
         )
 
-    def get_orders(self, api_data: dict) -> list[WbOrder]:
-        raw_data = wb_request(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/orders",
-                              api_data,
-                              version="new",
-                              method="GET")
+    def get_orders(self, api: WildberriesAPI) -> list[WbOrder]:
+        raw_data = api.marketplace_request(url=f"api/v3/supplies/{self.id}/orders")
 
         for _o in raw_data['orders']:
             yield WbOrder.parse_from_dict({**_o, 'deliveryType': 'fbs'})
 
-    def add_order(self, api_data: dict, order_id: int) -> None:
-        wb_request(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/orders/{order_id}",
-                   api_data,
-                   version="new",
-                   method="PATCH")
+    def add_order(self, api: WildberriesAPI, order_id: int) -> None:
+        api.marketplace_request(url=f"api/v3/supplies/{self.id}/orders/{order_id}", method="PATCH")
 
-    def close(self, api_data: dict) -> None:
-        wb_request(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/deliver",
-                   api_data,
-                   version="new",
-                   method="PATCH")
+    def close(self, api: WildberriesAPI) -> None:
+        api.marketplace_request(url=f"api/v3/supplies/{self.id}/deliver", method="PATCH")
 
-    def cancel(self, api_data: dict) -> None:
-        wb_request(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}/cancel",
-                   api_data,
-                   version="new",
-                   method="PATCH")
+    def cancel(self, api: WildberriesAPI) -> None:
+        api.marketplace_request(url=f"api/v3/supplies/{self.id}/cancel", method="PATCH")
 
-    def delete(self, api_data: dict):
-        wb_request(f"https://suppliers-api.wildberries.ru/api/v3/supplies/{self.id}",
-                   api_data,
-                   version="new",
-                   method="DELETE")
+    def delete(self, api: WildberriesAPI) -> None:
+        api.marketplace_request(url=f"api/v3/supplies/{self.id}", method="DELETE")
 
     @classmethod
-    def get_supplies(cls, api_data: dict) -> list[Self]:
+    def get_supplies(cls, api: WildberriesAPI) -> list[Self]:
         query = {
             "limit": 50,
             "next": 0
         }
 
         while True:
-            raw_data = wb_request("https://suppliers-api.wildberries.ru/api/v3/supplies",
-                                  api_data,
-                                  version="new",
-                                  method="GET",
-                                  params=query)
+            raw_data = api.marketplace_request(url="api/v3/supplies", params=query)
 
             for s_data in raw_data['supplies']:
                 yield cls.parse_from_dict(s_data)
@@ -199,16 +174,10 @@ class WbSupply:
                 query['next'] = raw_data['next']
 
     @classmethod
-    def get_supply_by_id(cls, api_data: dict, supply_id: str) -> Self:
-        return cls.parse_from_dict(wb_request(f'https://suppliers-api.wildberries.ru/api/v3/supplies/{supply_id}',
-                                              api_data,
-                                              version="new",
-                                              method="GET"))
+    def get_supply_by_id(cls, api: WildberriesAPI, supply_id: str) -> Self:
+        return cls.parse_from_dict(api.marketplace_request(url=f"api/v3/supplies/{supply_id}"))
 
     @classmethod
-    def create_supply(cls, api_data: dict, name: str) -> Self:
-        return cls.get_supply_by_id(api_data, wb_request("https://suppliers-api.wildberries.ru/api/v3/supplies",
-                                                         api_data,
-                                                         version="new",
-                                                         method="POST",
-                                                         body={'name': name})['id'])
+    def create_supply(cls, api: WildberriesAPI, name: str) -> Self:
+        raw_data = api.marketplace_request(url="api/v3/supplies", method="POST", body={'name': name})
+        return cls.get_supply_by_id(api, raw_data["id"])

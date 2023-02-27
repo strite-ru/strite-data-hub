@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Self
 
-from .api import wb_request
+from .api import WildberriesAPI
 
 
 @dataclass(frozen=True)
@@ -17,9 +17,8 @@ class WbWarehouse:
         )
 
     @classmethod
-    def get_warehouses(cls, api_data: dict) -> list[Self]:
-        raw_data = wb_request("https://suppliers-api.wildberries.ru/api/v2/warehouses", api_data,
-                              method="GET", version="new")
+    def get_warehouses(cls, api: WildberriesAPI) -> list[Self]:
+        raw_data = api.marketplace_request(url="api/v2/warehouses")
 
         for _d in raw_data:
             yield cls.parse_from_dict(_d)

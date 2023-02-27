@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from typing import Self, Optional, Literal
-from .api import ozon_request
+from .api import OzonAPI
+import logging
+
+logger = logging.getLogger("Strite")
 
 
 @dataclass(frozen=True)
@@ -21,6 +24,7 @@ class OzonProduct:
     sizes: list[OzonSku]  # sizes
     image: str  # primary_image
     barcode: str  # barcode
+
     # category_id: int https://docs.ozon.ru/api/seller/#operation/CategoryAPI_GetCategoryTree
 
     @classmethod
@@ -40,10 +44,10 @@ class OzonProduct:
         )
 
     @classmethod
-    def get_products(cls, api_data: dict) -> list[Self]:
+    def get_products(cls, api: OzonAPI) -> list[Self]:
         """
         Получаем список товаров магазина Ozon
-        :param api_data: данные для авторизации
+        :param api: данные для авторизации
         :return: объекты товаров
         """
         body = {
@@ -57,12 +61,13 @@ class OzonProduct:
         vendor_codes = []
 
         while True:
-            raw_data = ozon_request("https://api-seller.ozon.ru/v2/product/list",
-                                    api_data,
-                                    body=body)
+            raw_data = api.request(url="v2/product/list",
+                                   method="POST",
+                                   body=body)
 
             if not raw_data.get('result', False):
-                raise Exception("Не смогли получить список товаров магазина Ozon")
+                logger.error(msg := "Не смогли получить список товаров магазина Ozon")
+                raise Exception(msg)
 
             vendor_codes.extend([_p['offer_id'] for _p in raw_data['result']['items']])
 
@@ -70,29 +75,30 @@ class OzonProduct:
             if len(vendor_codes) >= raw_data['result']['total']:
                 break
 
-        return cls.get_products_by_codes(api_data, vendor_codes)
+        return cls.get_products_by_codes(api, vendor_codes)
 
     @classmethod
-    def get_products_by_codes(cls, api_data: dict, vendor_codes: list[str]) -> list[Self]:
+    def get_products_by_codes(cls, api: OzonAPI, vendor_codes: list[str]) -> list[Self]:
         """
         Получаем список товаров магазина Ozon по кодам
-        :param api_data: данные для авторизации
+        :param api: данные для авторизации
         :param vendor_codes: массив кодов товаров
         :return: массив объектов товаров
         """
+
         def divide_chunks(l, n):
             for i in range(0, len(l), n):
                 yield l[i:i + n]
 
         for chunk in divide_chunks(vendor_codes, 100):
-            raw_product_details = ozon_request("https://api-seller.ozon.ru/v2/product/info/list", api_data, body={
+            body = {
                 'offer_id': chunk
-            })
+            }
+            raw_product_details = api.request(url="v2/product/info/list", body=body)
 
             if not raw_product_details.get('result', False):
-                Exception("Не смогли получить список товаров магазина Ozon (details)")
+                logger.error(msg := "Не смогли получить список товаров магазина Ozon (details)")
+                raise Exception(msg)
 
             for _p in raw_product_details['result']['items']:
                 yield cls.parse_from_dict(_p)
-
-

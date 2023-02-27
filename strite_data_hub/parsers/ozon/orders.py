@@ -2,8 +2,11 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Self, Optional, Literal
 
-from .api import ozon_request
+from .api import OzonAPI
 from .products import OzonProduct
+import logging
+
+logger = logging.getLogger("Strite")
 
 
 @dataclass(frozen=True)
@@ -13,28 +16,26 @@ class OzonOrder:
     sku: int
     quantity: int
 
-    def get_product_info(self, api_data: dict) -> OzonProduct:
-        _products = list(OzonProduct.get_products_by_codes(api_data, [self.vendor_code]))
-        if len(_products) == 0:
-            raise Exception(f"Не смогли получить информацию о товаре {self.vendor_code}")
-        for item in _products:
+    def get_product_info(self, products: list[OzonProduct]) -> OzonProduct:
+        logger.debug(f"get_product_info ({self.vendor_code})")
+
+        for item in products:
             if item is None:
                 continue
             if item.vendor_code == self.vendor_code:
                 return item
-        raise Exception(f"Не смогли получить информацию о товаре {self.vendor_code}")
+
+        logger.error(msg := f"Не смогли получить информацию о товаре {self.vendor_code}")
+        raise Exception(msg)
 
     @classmethod
-    def get_products_info(cls, api_data: dict, orders: list[Self]) -> list[OzonProduct]:
-        _products = list(OzonProduct.get_products_by_codes(api_data, [o.vendor_code for o in orders]))
-        if len(_products) == 0:
-            raise Exception(f"Не смогли получить информацию о товарах {', '.join([o.vendor_code for o in orders])}")
-        for item in _products:
-            if item is None:
-                continue
-            for order in orders:
-                if item.vendor_code == order.vendor_code:
-                    yield item
+    def get_products_info(cls, api: OzonAPI, orders: list[Self]) -> list[OzonProduct]:
+        logger.debug(f"Получение данных о товарах из маркета из заказов")
+
+        _products = list(OzonProduct.get_products_by_codes(api, [o.vendor_code for o in orders]))
+
+        for order in orders:
+            yield order.get_product_info(_products)
 
 
 @dataclass(frozen=True)
@@ -52,38 +53,35 @@ class OzonPosting:
     orders: list[OzonOrder]
     status: str
 
-    def close(self, api_data: dict, test: bool = False) -> bool:
-        if not test:
-            def to_dict(value: OzonOrder) -> dict:
-                return {
-                    "exemplar_info": [
-                        {
-                            "is_gtd_absent": True
-                        }
-                    ],
-                    "product_id": value.sku,
-                    "quantity": value.quantity
-                }
-
-            body = {
-                "packages": [
+    def close(self, api: OzonAPI) -> None:
+        def to_dict(value: OzonOrder) -> dict:
+            return {
+                "exemplar_info": [
                     {
-                        "products": [to_dict(_o) for _o in self.orders],
+                        "is_gtd_absent": True
                     }
                 ],
-                "posting_number": self.postingId
+                "product_id": value.sku,
+                "quantity": value.quantity
             }
-            ozon_request("https://api-seller.ozon.ru/v3/posting/fbs/ship", api_data, body=body)
-        return True
 
-    def get_sticker(self, api_data: dict) -> bytes:
+        body = {
+            "packages": [
+                {
+                    "products": [to_dict(_o) for _o in self.orders],
+                }
+            ],
+            "posting_number": self.postingId
+        }
+        api.request(url="v3/posting/fbs/ship", body=body)
+
+    def get_sticker(self, api: OzonAPI) -> bytes:
         body = {
             "posting_number": [self.postingId]
         }
-        return ozon_request("https://api-seller.ozon.ru/v2/posting/fbs/package-label",
-                            api_data,
-                            content_type="application/pdf",
-                            body=body)
+        return api.request(url="v2/posting/fbs/package-label",
+                           content_type="application/pdf",
+                           body=body)
 
     @classmethod
     def parse_from_dict(cls, raw_data: dict) -> Self:
@@ -103,20 +101,26 @@ class OzonPosting:
         )
 
     @classmethod
-    def create_act(cls, api_data: dict, departure_date: datetime, test: bool = False) -> bool:
-        if not test:
-            body = {
-                "departure_date": departure_date.strftime('%Y-%m-%dT%H:%M:%SZ')
-            }
-            ozon_request("https://api-seller.ozon.ru/v2/posting/fbs/act/create", api_data, body=body)
+    def create_act(cls, api: OzonAPI, departure_date: datetime) -> bool:
+        body = {
+            "departure_date": departure_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+        }
+        try:
+            api.request(url="v2/posting/fbs/act/create",
+                        method="POST",
+                        body=body)
+        except Exception as err:
+            logger.error("Не удалось создать акт поставки", err)
+            return False
         return True
 
     @classmethod
-    def get_postings(cls, api_data: dict,
+    def get_postings(cls,
+                     api: OzonAPI,
                      status: Optional[Literal['awaiting_packaging', 'awaiting_deliver', 'delivering']]) -> list[Self]:
         """
         Получение списка отправлений по статусу в Ozon
-        :param api_data: данные для авторизации
+        :param api:
         :param status: статус отправления
         :return:
         """
@@ -139,9 +143,12 @@ class OzonPosting:
             body['filter']['status'] = status
 
         while True:
-            raw_data = ozon_request("https://api-seller.ozon.ru/v3/posting/fbs/list", api_data, body=body)
+            raw_data = api.request(url="v3/posting/fbs/list",
+                                   method="POST",
+                                   body=body)
 
             if not raw_data.get('result', None):
+                logger.error("Не смогли получить список заказов магазина Ozon")
                 raise Exception("Не смогли получить список заказов магазина Ozon")
 
             for _p in raw_data['result']['postings']:

@@ -4,6 +4,12 @@
 
 ## Ozon
 
+```python
+from strite_data_hub.parsers.ozon import OzonAPI
+
+OzonAPI(client_id=000, key="xxx")
+```
+
 ### Товары
 
 ```json
