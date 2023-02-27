@@ -11,7 +11,7 @@
 
 Установить библиотеку на свой компьютер или сервер. Для этого можно использовать менеджер пакетов, например, pip для Python.
 
-```commandline
+```bash
 pip install git+https://github.com/strite-ru/strite-data-hub.git
 ```
 
@@ -23,18 +23,18 @@ pip install git+https://github.com/strite-ru/strite-data-hub.git
 
 Результатом получение доступов будет два значения
 
-> Client-Id =
+> Client-Id = Ваше_значение
 > 
-> Api-Key =
+> Api-Key = Ваше_значение
 
 
 ### Wildberries
 
 Для работы библиотеки необходимо выпустить 2 ключа
 
-> Ключ маркетплейса
+> Ключ стандартный = Ваше_значение
 > 
-> Ключ статистики
+> Ключ статистики = Ваше_значение
 
 
 ## Шаг 2. Импорт библиотеки
@@ -54,5 +54,5 @@ ozon_api = OzonAPI(client_id="Ваш_Client-Id", key="Ваш_Api-Key")
 from strite_data_hub.parsers.wildberries import WildberriesAPI
 
 
-wb_api = WildberriesAPI(statistics="Ваш_ключ_статистики", marketplace="Ваш_ключ_маркетплейса")
+wb_api = WildberriesAPI(statistics="Ваш_ключ_статистики", marketplace="Ваш_ключ_стандартный")
 ```

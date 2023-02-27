@@ -1,3 +1,3 @@
-* [Home](#strite-data-hub)
-* [Getting Started](getting_started.md)
+* [Начало](#strite-data-hub)
+* [Начало работы](getting_started.md)
 * [Парсинг данных с маркетплейсов](parsing.md)
