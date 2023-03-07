@@ -315,3 +315,42 @@ if supply:
     # Удалить (пустую) поставку
     supply.delete(api=my_market)
 ```
+
+## Транзакции по магазину
+
+Логика работы и результат вызовов унифицирована для всех маркетплейсов
+
+### Транзакции
+Объект описания транзакций
+
+```python
+class TransactionData:
+    transaction_id: int
+    transaction_type: int
+    transaction_date: datetime
+    order_id: int
+    order_type: int
+    order_date: datetime
+    marketplace_product: int = 0
+    commission: Decimal = 0
+    delivery: Decimal = 0
+    quantity: int = 0
+    refund: int = 0
+    amount: Decimal = 0
+
+    @property
+    def pay(self) -> Decimal:
+        return self.amount + self.commission + self.delivery
+```
+
+
+### Получение списка транзакций
+
+```python
+from strite_data_hub.parsers.wildberries import WildberriesAPI, WbTransaction
+
+# создание объекта для запросов в маркетплейс
+my_market = WildberriesAPI(marketplace="xxx", statistics="sss")
+
+transactions = WbTransaction.get_transactions(api=my_market)
+```
