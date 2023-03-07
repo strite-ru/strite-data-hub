@@ -20,3 +20,22 @@ def requests_retry_session(
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('https://', adapter)
     return session
+
+
+def get_transaction_type(origin_type: str) -> int:
+    sale_types = ['Продажа', 'OperationAgentDeliveredToCustomer']
+    refund_types = ['Возврат', 'OperationItemReturn', 'OperationReturnGoodsFBSofRMS', 'ClientReturnAgentOperation']
+    logistic_types = ['Логистика']
+    fine_types = ['Штрафы и доплаты', 'OperationMarketplaceServicePremiumCashback']
+
+    if origin_type in sale_types:
+        return 0
+    elif origin_type in logistic_types:
+        return 1
+    elif origin_type in refund_types:
+        return 2
+    elif origin_type in fine_types:
+        return 3
+    else:
+        return -1
+

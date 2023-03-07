@@ -65,7 +65,7 @@ class WildberriesAPI:
                            content_type: str = "application/json",
                            **kwargs):
         params = {
-            "token": self.statistics,
+            "key": self.statistics,
             **kwargs.pop("params", None)
         }
         headers = {
