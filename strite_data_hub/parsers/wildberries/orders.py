@@ -72,7 +72,7 @@ class WbOrder:
         raw_data = api.marketplace_request(url="api/v3/orders/stickers",
                                            method="POST",
                                            params={'type': 'svg', 'width': 58, 'height': 40},
-                                           body={'orders': [self.id]})
+                                           json={'orders': [self.id]})
         if len(raw_data['stickers']) > 0:
             del raw_data['stickers'][0]['file']
             self.sticker = WbSticker(orderId=self.id, **raw_data['stickers'][0])
@@ -179,5 +179,5 @@ class WbSupply:
 
     @classmethod
     def create_supply(cls, api: WildberriesAPI, name: str) -> Self:
-        raw_data = api.marketplace_request(url="api/v3/supplies", method="POST", body={'name': name})
+        raw_data = api.marketplace_request(url="api/v3/supplies", method="POST", json={'name': name})
         return cls.get_supply_by_id(api, raw_data["id"])

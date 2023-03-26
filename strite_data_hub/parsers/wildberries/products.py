@@ -148,7 +148,7 @@ class WbProduct:
         }
 
         while True:
-            raw_data = api.marketplace_request(url="content/v1/cards/cursor/list", method="POST", body=body)
+            raw_data = api.marketplace_request(url="content/v1/cards/cursor/list", method="POST", json=body)
 
             # Возвращаем список товаров
             yield from (cls.parse_from_dict(_p) for _p in raw_data['data']['cards'])
@@ -169,7 +169,7 @@ class WbProduct:
         for codes in divide_chunks(vendor_codes, 100):
             raw_data = api.marketplace_request(url="content/v1/cards/filter",
                                                method="POST",
-                                               body={
+                                               json={
                                                    "vendorCodes": codes
                                                })
             yield from (cls.parse_from_dict(_p) for _p in raw_data['data'])
