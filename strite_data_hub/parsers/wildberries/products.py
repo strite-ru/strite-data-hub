@@ -74,7 +74,7 @@ class WbProduct:
     id: int  # nmID
     name: Optional[str]  # none
     sizes: list[WbChart]  # sizes
-    image: str  # mediaFiles[0]
+    images: list[str]  # mediaFiles
     vendor_code: str  # vendorCode
     link: str  # generate
     brand: str  # brand
@@ -105,7 +105,7 @@ class WbProduct:
             vendor_code=raw_data['vendorCode'],
             sizes=[WbChart.parse_from_dict(_s) for _s in raw_data['sizes']],
             link=f"https://www.wildberries.ru/catalog/{raw_data['nmID']}/detail.aspx",  # Генерация ссылки
-            image=raw_data['mediaFiles'][0],  # Первое изображение массива изображений товара
+            images=raw_data['mediaFiles'],  # Первое изображение массива изображений товара
             characteristics=[WbCharacteristic.parse_from_dict(_c) for _c in raw_data.get("characteristics", [])]
         )
 
@@ -114,7 +114,7 @@ class WbProduct:
             'id': self.id,
             'name': self.name,
             'sizes': self.sizes,
-            'image': self.image,
+            'images': self.images,
             'vendor_code': self.vendor_code,
             'link': self.link,
             'brand': self.brand,
