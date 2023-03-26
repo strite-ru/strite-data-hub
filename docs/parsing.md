@@ -22,6 +22,21 @@ class OzonProduct:
     sizes: list[OzonSku]  # sizes
     image: str  # primary_image
     barcode: str  # barcode
+
+@dataclass()
+class TransactionData:
+    transaction_id: Optional[int] = None
+    transaction_type: Optional[int] = None
+    transaction_date: Optional[datetime] = None
+    order_id: Optional[int] = None
+    order_type: Optional[int] = None
+    order_date: Optional[datetime] = None
+    marketplace_product: Optional[int] = None
+    commission: Decimal = 0
+    delivery: Decimal = 0
+    quantity: int = 0
+    refund: int = 0
+    amount: Decimal = 0
 ```
 
 #### Полчить список всех товаров магазина

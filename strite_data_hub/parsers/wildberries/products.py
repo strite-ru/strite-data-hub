@@ -173,3 +173,7 @@ class WbProduct:
                                                    "vendorCodes": codes
                                                })
             yield from (cls.parse_from_dict(_p) for _p in raw_data['data'])
+
+    def update_stock_balance(self, api: WildberriesAPI, new_stock_value: int):
+        """Обновление (измение) числа товара на маркетплейсе"""
+        pass

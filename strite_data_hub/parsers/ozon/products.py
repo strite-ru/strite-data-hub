@@ -102,3 +102,7 @@ class OzonProduct:
 
             for _p in raw_product_details['result']['items']:
                 yield cls.parse_from_dict(_p)
+
+    def update_stock_balance(self, api: OzonAPI, new_stock_value: int):
+        """Обновление (измение) числа товара на маркетплейсе"""
+        pass
