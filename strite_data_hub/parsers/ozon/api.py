@@ -2,6 +2,8 @@ import logging
 import time
 import traceback
 from dataclasses import dataclass
+from typing import Self
+
 from requests import Response, Session
 from strite_data_hub.parsers.utils import requests_retry_session
 
@@ -12,6 +14,17 @@ class OzonAPI:
     key: str
 
     base_url: str = "https://api-seller.ozon.ru/"
+
+    @classmethod
+    def parse_from_dict(cls, raw_data: dict) -> Self:
+        """
+        :param raw_data: Client-Id and Api-Key
+        :return: OzonAPI
+        """
+        return cls(
+            client_id=raw_data['Client-Id'],
+            key=raw_data['Api-Key']
+        )
 
     def __dict__(self) -> dict:
         return {

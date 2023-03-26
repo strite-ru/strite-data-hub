@@ -2,6 +2,8 @@ import logging
 import time
 import traceback
 from dataclasses import dataclass
+from typing import Self
+
 from requests import Response, Session
 from strite_data_hub.parsers.utils import requests_retry_session
 
@@ -12,6 +14,13 @@ class WildberriesAPI:
     marketplace: str
 
     base_url: str = "https://suppliers-api.wildberries.ru/"
+
+    @classmethod
+    def parse_from_dict(cls, raw_data: dict) -> Self:
+        return cls(
+            statistics=raw_data['statistics'],
+            marketplace=raw_data['marketplace']
+        )
 
     def __dict__(self) -> dict:
         return {
