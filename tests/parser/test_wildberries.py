@@ -39,7 +39,10 @@ def test_wb_parse_product_lazy_from_dict():
             price=None
         )
     ]
-    assert product.image == "https://images.wbstatic.net/c516x688/new/12345600-1.jpg"
+    assert product.images == [
+            "https://images.wbstatic.net/c516x688/new/12345600-1.jpg",
+            "https://images.wbstatic.net/c516x688/new/12345600-2.jpg"
+        ]
     assert product.link == "https://www.wildberries.ru/catalog/123456/detail.aspx"
 
 
@@ -93,6 +96,9 @@ def test_wb_parse_product_full_from_dict():
             price=1000
         )
     ]
-    assert product.image == "https://images.wbstatic.net/c516x688/new/12345600-1.jpg"
+    assert product.images == [
+            "https://images.wbstatic.net/c516x688/new/12345600-1.jpg",
+            "https://images.wbstatic.net/c516x688/new/12345600-2.jpg"
+        ]
     assert product.link == "https://www.wildberries.ru/catalog/123456/detail.aspx"
     assert product.name == "Тестовый товар"

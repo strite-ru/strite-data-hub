@@ -77,8 +77,8 @@ class WbProduct:
     images: list[str]  # mediaFiles
     vendor_code: str  # vendorCode
     link: str  # generate
-    brand: str  # brand
-    category: str  # object
+    brand: Optional[str]  # brand
+    category: Optional[str]  # object
     characteristics: Optional[list[WbCharacteristic]]
 
     @classmethod
@@ -100,8 +100,8 @@ class WbProduct:
         return cls(
             id=raw_data['nmID'],
             name=raw_data.get("name", None),
-            brand=raw_data['brand'],
-            category=raw_data['object'],
+            brand=raw_data.get("brand", None),
+            category=raw_data.get("object", None),
             vendor_code=raw_data['vendorCode'],
             sizes=[WbChart.parse_from_dict(_s) for _s in raw_data['sizes']],
             link=f"https://www.wildberries.ru/catalog/{raw_data['nmID']}/detail.aspx",  # Генерация ссылки
