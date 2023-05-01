@@ -1,9 +1,9 @@
 """Прогнозирования остатков на складе
 """
 import math
-from datetime import timedelta, datetime
+from datetime import timedelta
 
-from strite_data_hub.dataclasses import PredictionFOS, Product
+from strite_data_hub.dataclasses import PredictionFOS
 
 
 def get_basic_predication_supplies_fos(size_supply: int,
@@ -16,7 +16,7 @@ def get_basic_predication_supplies_fos(size_supply: int,
                                        ) -> PredictionFOS:
     """Расчет объема поставок
     :param size_supply: оптимальный размер поставки
-    :param avg_delivery_time:  (Tc) время от наступления точки заказа, времени на сборку, времени доставки на склад и приемки на складе (дни) See: https://docs.ozon.ru/retail/contract/komissions/
+    :param avg_delivery_time:  (Tc) время от наступления точки заказа, времени на сборку, времени доставки на склад и приемки на складе (дни) See for ozon: https://docs.ozon.ru/retail/contract/komissions/
     :param avg_consumption: (Сред расход) средний расход в день
     :param deviation_sales: (Срасхода) среднеквадратичное отклонение расхода запаса(продаж)
     :param time_delta: Интервал времени контроля (дни)
