@@ -27,9 +27,10 @@ def get_basic_predication_supplies_fos(size_supply: int,
     result = PredictionFOS()
 
     _d_adt = avg_delivery_time.total_seconds()/timedelta(days=1).total_seconds()
+    _d_delta = time_delta.total_seconds()/timedelta(days=1).total_seconds()
 
     result.safety_stock = integral * math.sqrt(
-        _d_adt * math.pow(deviation_sales, 2) +
+        (_d_adt + _d_delta) * math.pow(deviation_sales, 2) +
         avg_consumption * math.pow(deviation_delivery_time, 2)
     )
 
