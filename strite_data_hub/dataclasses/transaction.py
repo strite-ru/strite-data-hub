@@ -46,9 +46,3 @@ class TransactionData:
             amount=self.amount - another.amount,
             marketplace_product=self.marketplace_product if self == another else None
         )
-
-
-@dataclass()
-class Product:
-    id: int
-    vendor_code: str

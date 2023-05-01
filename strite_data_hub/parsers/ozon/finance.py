@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Self
 
-from ..general_datastrutures import TransactionData
+from strite_data_hub.dataclasses import TransactionData
 from ..utils import get_transaction_type
 from .api import OzonAPI
 import logging

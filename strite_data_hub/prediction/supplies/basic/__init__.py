@@ -1,0 +1,1 @@
+from .main import get_basic_predication_supplies_fos
