@@ -1,1 +1,1 @@
-path/to/README_ru.md
+/README_ru.md
