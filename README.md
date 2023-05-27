@@ -4,12 +4,11 @@
 
 [![SAI](https://github.com/ITMO-NSS-team/open-source-ops/blob/master/badges/SAI_badge_flat.svg)](https://sai.itmo.ru/)
 [![ITMO](https://github.com/ITMO-NSS-team/open-source-ops/blob/master/badges/ITMO_badge_flat_rus.svg)](https://en.itmo.ru/en/)
+[![RU](https://img.shields.io/badge/lang-ru-yellow.svg)](/README_ru.md)
 
 This is a data hub for the Strite project. It is a collection of data sources and tools for data analysis.
 
 ## Documentation
-
----
 
 * [How to bootstrap](#how-to-bootstrap)
   - [Requirements](#requirements)
@@ -20,8 +19,6 @@ This is a data hub for the Strite project. It is a collection of data sources an
 * [Acknowledgements](#acknowledgements)
 
 ## How to bootstrap
-
----
 
 ### Requirements
 
@@ -67,8 +64,6 @@ wb_api = WildberriesAPI(statistics="Your_statistic-key", marketplace="Your_Api-K
 
 ## Project structure
 
----
-
 Core library path is `strite_data_hub`. It contains folders with common structure of interaction with **Ozon** and **WildBerries**.
 
 - `parsers` folder with marketplace interaction
@@ -88,8 +83,6 @@ Core library path is `strite_data_hub`. It contains folders with common structur
 - `requirements.txt` contains requirements information
 
 ## Getting Started
-
----
 
 This section describes the data format received from marketplaces and required for further use by other functions of the library:
 
@@ -124,8 +117,6 @@ This section describes the data format received from marketplaces and required f
     - [Getting a list of transactions](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D1%82%D1%80%D0%B0%D0%BD%D0%B7%D0%B0%D0%BA%D1%86%D0%B8%D0%B9)
 
 ## Acknowledgements
-
----
 
 > This project is supported by ITMO University
 

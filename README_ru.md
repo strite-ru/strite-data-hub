@@ -4,50 +4,48 @@
 
 [![SAI](https://github.com/ITMO-NSS-team/open-source-ops/blob/master/badges/SAI_badge_flat.svg)](https://sai.itmo.ru/)
 [![ITMO](https://github.com/ITMO-NSS-team/open-source-ops/blob/master/badges/ITMO_badge_flat_rus.svg)](https://en.itmo.ru/en/)
+[![ENG](https://img.shields.io/badge/lang-en-red.svg)](/README.md)
 
-This is a data hub for the Strite project. It is a collection of data sources and tools for data analysis.
+Предствленная библиотека предназначена для работы с API российских маркетплейсов: Ozon, Wildberries.
 
-## Documentation
+## Документация
 
----
 
-* [How to bootstrap](#how-to-bootstrap)
-  - [Requirements](#requirements)
-    - [Install dependencies](#install-dependencies)
-  - [Examples](#examples)
-* [Project structure](#project-structure)
-* [Getting started](#getting-started)
-* [Acknowledgements](#acknowledgements)
+* [Как запустить](#как-запустить)
+  - [Требования](#требования)
+    - [Установка зависимостей](#установка-зависимостей)
+  - [Примеры](#примеры)
+* [Структура проекта](#структура-проекта)
+* [Начало работы](#начало-работы)
+* [Благодарности](#благодарности)
 
-## How to bootstrap
+## Как запустить
 
----
-
-### Requirements
+### Требования
 
 - Python 3.11
-- **Ozon** authentication key
+- **Ozon** ключ аутентификации
   - `Client-id`
   - `Api-Key`
-- **Wildberries** authentication key
+- **Wildberries** ключ аутентификации
   - `Api-Key`
   - `Statistics-key`
 
 
-Obtaining API keys for accessing the marketplace API can be done through your personal account 
-on the website of the [Ozon](https://docs.ozon.ru/api/seller/#section/Kak-poluchit-dostup-k-Seller-API) 
-and [Wildberries](https://openapi.wildberries.ru/#section/Obshee-opisanie/Avtorizaciya) marketplaces.
+Получение API-ключей для доступа к API можно сделать через личный кабинет на сайте маркетплейсов 
+[Ozon](https://docs.ozon.ru/api/seller/#section/Kak-poluchit-dostup-k-Seller-API) и 
+[Wildberries](https://openapi.wildberries.ru/#section/Obshee-opisanie/Avtorizaciya).
 
 
-### Install dependencies
+### Установка зависимостей
 
 ```
 pip install git+https://github.com/strite-ru/strite-data-hub.git
 ```
 
-### Examples
+### Примеры
 
-Initialization of an object with Ozon access (to receive data from the marketplace)
+Инициализация объекта с доступами Ozon (для получения данных из маркетплейса)
 
 ```python
 from strite_data_hub.parsers.ozon import OzonAPI
@@ -56,7 +54,7 @@ from strite_data_hub.parsers.ozon import OzonAPI
 ozon_api = OzonAPI(client_id="Your_Client-Id", key="Your_Api-Key")
 ```
 
-Initializing an object with Wilderries access (for getting data from the marketplace)
+Инициализация объекта с доступами Wilderries (для получения данных из маркетплейса)
 
 ```python
 from strite_data_hub.parsers.wildberries import WildberriesAPI
@@ -65,13 +63,12 @@ from strite_data_hub.parsers.wildberries import WildberriesAPI
 wb_api = WildberriesAPI(statistics="Your_statistic-key", marketplace="Your_Api-Key")
 ```
 
-## Project structure
+## Структура проекта
 
----
+Путь к основной библиотеке: `strite_data_hub`. 
+Он содержит папки с общей структурой взаимодействия с **Ozon** и **WildBerries**.
 
-Core library path is `strite_data_hub`. It contains folders with common structure of interaction with **Ozon** and **WildBerries**.
-
-- `parsers` folder with marketplace interaction
+- `parsers` папка с взаимодействием с маркетплейсом
   - `ozon`
     - `api`
     - `finance`
@@ -83,51 +80,49 @@ Core library path is `strite_data_hub`. It contains folders with common structur
     - `orders`
     - `products`
     - `warehouses`
-- `general_datastructures` folder contains dataclasses entities
-- `utils` folder contains several common types and helper functions
-- `requirements.txt` contains requirements information
+- `general_datastructures` папка содержит сущности классов данных
+- `utils` папка содержит несколько общих типов и вспомогательных функций
+- `requirements.txt` содержит информацию о зависимостях
 
-## Getting Started
+## Начало работы
 
----
-
-This section describes the data format received from marketplaces and required for further use by other functions of the library:
+Данный раздел описывает формат данных, полученный от маркетплейсов
+и необходимый для дальнейшего использования другими функциями
+библиотеки:
 
 - **Ozon**
-  - *Goods*
-    - [Item description objects](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D1%8B)
-    - [Get a list of all store products](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%87%D0%B8%D1%82%D1%8C-%D1%81%D0%BF%D0%B8%D1%81%D0%BE%D0%BA-%D0%B2%D1%81%D0%B5%D1%85-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%BE%D0%B2-%D0%BC%D0%B0%D0%B3%D0%B0%D0%B7%D0%B8%D0%BD%D0%B0)
-    - [Get all products with given SKUs](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C-%D0%B2%D1%81%D0%B5-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D1%8B-%D1%81-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%BC%D0%B8-%D0%B0%D1%80%D1%82%D0%B8%D0%BA%D1%83%D0%BB%D0%B0%D0%BC%D0%B8)
-  - *Orders*
-    - [Order Description Objects](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D1%8B)
-    - [Receiving shipments](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B9)
-    - [Get sticker data by shipment](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5-%D1%81%D1%82%D0%B8%D0%BA%D0%B5%D1%80%D0%B0-%D0%BF%D0%BE-%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8E)
-    - [Submit a shipment for delivery](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%B5%D1%80%D0%B5%D0%B4%D0%B0%D1%82%D1%8C-%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-%D0%B4%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D1%83)
-    - [Create a shipping act](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D1%82%D1%8C-%D0%B0%D0%BA%D1%82-%D0%BE%D1%82%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B8)
-    - [Retrieving product information from shipping orders](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D0%B8-%D0%BE-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%B0%D1%85-%D0%B8%D0%B7-%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%BE%D0%B2-%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F)
+  - *Товары*
+    - [Объекты описания товара](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D1%8B)
+    - [Получить список всех товаров магазина](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%87%D0%B8%D1%82%D1%8C-%D1%81%D0%BF%D0%B8%D1%81%D0%BE%D0%BA-%D0%B2%D1%81%D0%B5%D1%85-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%BE%D0%B2-%D0%BC%D0%B0%D0%B3%D0%B0%D0%B7%D0%B8%D0%BD%D0%B0)
+    - [Получить все товары с данными артикулами](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C-%D0%B2%D1%81%D0%B5-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D1%8B-%D1%81-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%BC%D0%B8-%D0%B0%D1%80%D1%82%D0%B8%D0%BA%D1%83%D0%BB%D0%B0%D0%BC%D0%B8)
+  - *Заказы*
+    - [Объекты описания заказов](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D1%8B)
+    - [Получение отправлений](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B9)
+    - [Получить данные стикера по отправлению](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5-%D1%81%D1%82%D0%B8%D0%BA%D0%B5%D1%80%D0%B0-%D0%BF%D0%BE-%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8E)
+    - [Передать отправление в доставку](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%B5%D1%80%D0%B5%D0%B4%D0%B0%D1%82%D1%8C-%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-%D0%B4%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D1%83)
+    - [Создать акт отгрузки](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D1%82%D1%8C-%D0%B0%D0%BA%D1%82-%D0%BE%D1%82%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B8)
+    - [Получение информации о товарах из заказов отправления](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D0%B8-%D0%BE-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%B0%D1%85-%D0%B8%D0%B7-%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%BE%D0%B2-%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F)
 - **Wildberries**
-  - *Goods*
-    - [Item description objects](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D1%8B-1)
-    - [Get a list of all store products](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%BE%D0%B2-%D0%B8%D0%B7-%D0%BC%D0%B0%D1%80%D0%BA%D0%B5%D1%82%D0%BF%D0%BB%D0%B5%D0%B9%D1%81%D0%B0)
-    - [Get all products with given SKUs](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C-%D0%B2%D1%81%D0%B5-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D1%8B-%D1%81-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%BC%D0%B8-%D0%B0%D1%80%D1%82%D0%B8%D0%BA%D1%83%D0%BB%D0%B0%D0%BC%D0%B8-1)
-  - *Orders*
-    - [Receiving new orders with product data](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D0%BD%D0%BE%D0%B2%D1%8B%D1%85-%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%BE%D0%B2-%D1%81-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%BC%D0%B8-%D0%BE-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%B5)
-    - [Cancel the order](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BE%D1%82%D0%BC%D0%B5%D0%BD%D0%B8%D1%82%D1%8C-%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7)
+  - *Товары*
+    - [Объекты описания товара](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D1%8B-1)
+    - [Получение списка товаров из маркетплейса](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%BE%D0%B2-%D0%B8%D0%B7-%D0%BC%D0%B0%D1%80%D0%BA%D0%B5%D1%82%D0%BF%D0%BB%D0%B5%D0%B9%D1%81%D0%B0)
+    - [Получить все товары с данными артикулами](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C-%D0%B2%D1%81%D0%B5-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D1%8B-%D1%81-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%BC%D0%B8-%D0%B0%D1%80%D1%82%D0%B8%D0%BA%D1%83%D0%BB%D0%B0%D0%BC%D0%B8-1)
+  - *Заказы*
+    - [Получение новых заказов с данными о товаре](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D0%BD%D0%BE%D0%B2%D1%8B%D1%85-%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D0%BE%D0%B2-%D1%81-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%BC%D0%B8-%D0%BE-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D0%B5)
+    - [Отменить заказ](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BE%D1%82%D0%BC%D0%B5%D0%BD%D0%B8%D1%82%D1%8C-%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7)
   - *Supplies*
-    - [Supply Description Object](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B8)
-    - [Get a list of supplies](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C-%D1%81%D0%BF%D0%B8%D1%81%D0%BE%D0%BA-%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BE%D0%BA)
-    - [Get delivery content](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C-%D1%81%D0%BE%D0%B4%D0%B5%D1%80%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B8)
-    - [Delivery Actions](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%8F-%D1%81-%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%BE%D0%B9)
-- **Store transactions** (The logic of work and the result of calls are unified for all marketplaces)
-  - **Transactions**
-    - [Transaction description object](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D1%82%D1%80%D0%B0%D0%BD%D0%B7%D0%B0%D0%BA%D1%86%D0%B8%D0%B8)
-    - [Getting a list of transactions](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D1%82%D1%80%D0%B0%D0%BD%D0%B7%D0%B0%D0%BA%D1%86%D0%B8%D0%B9)
+    - [Объект описания поставок](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B8)
+    - [Получить список поставок](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C-%D1%81%D0%BF%D0%B8%D1%81%D0%BE%D0%BA-%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BE%D0%BA)
+    - [Получить содержание поставки](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C-%D1%81%D0%BE%D0%B4%D0%B5%D1%80%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B8)
+    - [Действия с поставкой](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%8F-%D1%81-%D0%BF%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%BE%D0%B9)
+- **Транзакции по магазину** (Логика работы и результат вызовов унифицирована для всех маркетплейсов)
+  - **Транзакции**
+    - [Объект описания транзакций](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D1%82%D1%80%D0%B0%D0%BD%D0%B7%D0%B0%D0%BA%D1%86%D0%B8%D0%B8)
+    - [Получение списка транзакций](https://github.com/strite-ru/strite-data-hub/blob/master/docs/parsing.md#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D1%82%D1%80%D0%B0%D0%BD%D0%B7%D0%B0%D0%BA%D1%86%D0%B8%D0%B9)
 
-## Acknowledgements
+## Благодарности
 
----
-
-> This project is supported by ITMO University
+> Проект поддерживается Университетом ИТМО.
 
 
 
