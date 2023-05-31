@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Self
+from typing import Self, Optional
 
 from strite_data_hub.dataclasses import TransactionData
 from ..utils import get_transaction_type
@@ -12,6 +12,7 @@ logger = logging.getLogger("Strite")
 
 @dataclass()
 class OzonTransaction(TransactionData):
+    warehouse_id: Optional[int] = None
 
     @classmethod
     def parse_from_dict(cls, raw_data: dict) -> Self:
@@ -29,7 +30,8 @@ class OzonTransaction(TransactionData):
             quantity=len(raw_data['items']) if tr_type == 0 else 0,
             refund=len(raw_data['items']) if tr_type == 2 else 0,
             amount=raw_data.get('accruals_for_sale', 0),
-            marketplace_product=raw_data['product_id'] if 'product_id' in raw_data else 0
+            marketplace_product=raw_data['product_id'] if 'product_id' in raw_data else 0,
+            warehouse_id=raw_data['posting']['warehouse_id'] if 'warehouse_id' in raw_data['posting'] else None
         )
 
     @classmethod
@@ -53,13 +55,13 @@ class OzonTransaction(TransactionData):
                 "transaction_type": "all"
             },
             "page": 1,
-            "page_size": 100000
+            "page_size": 1000
         }
 
         while True:
             raw_data = api.request(url="v3/finance/transaction/list",
                                    method="POST",
-                                   body=body)
+                                   json=body)
 
             if not raw_data.get('result', False):
                 logger.error(msg := "Не смогли получить транзакции магазина Ozon")
@@ -89,11 +91,10 @@ class OzonTransaction(TransactionData):
                         }
                         raw_posting = api.request(url="v2/posting/fbo/get",
                                                   method="POST",
-                                                  body=body_posting)
+                                                  json=body_posting)
                     else:
                         body_posting = {
                             "posting_number": operation['posting']['posting_number'],
-                            "translit": True,
                             "with": {
                                 "analytics_data": False,
                                 "barcodes": False,
@@ -101,9 +102,9 @@ class OzonTransaction(TransactionData):
                                 "translit": False
                             }
                         }
-                        raw_posting = api.request(url="v2/posting/fbs/get",
+                        raw_posting = api.request(url="v3/posting/fbs/get",
                                                   method="POST",
-                                                  body=body_posting)
+                                                  json=body_posting)
 
                     if not raw_posting.get('result', False):
                         logger.error(msg := "Не смогли получить постинг магазина Ozon")
@@ -120,7 +121,8 @@ class OzonTransaction(TransactionData):
                             'posting': {
                                 'delivery_schema': operation['posting']['delivery_schema'],
                                 'order_date': operation['posting']['order_date'],
-                                'posting_number': operation['posting']['posting_number']
+                                'posting_number': operation['posting']['posting_number'],
+                                'warehouse_id': operation['posting']['warehouse_id']
                             },
                             'services': [
                                 {'price': sum(service['price'] for service in operation['services']) / len(

@@ -73,7 +73,7 @@ class OzonPosting:
             ],
             "posting_number": self.postingId
         }
-        api.request(url="v3/posting/fbs/ship", body=body)
+        api.request(url="v3/posting/fbs/ship", json=body)
 
     def get_sticker(self, api: OzonAPI) -> bytes:
         body = {
@@ -81,7 +81,7 @@ class OzonPosting:
         }
         return api.request(url="v2/posting/fbs/package-label",
                            content_type="application/pdf",
-                           body=body)
+                           json=body)
 
     @classmethod
     def parse_from_dict(cls, raw_data: dict) -> Self:
@@ -108,7 +108,7 @@ class OzonPosting:
         try:
             api.request(url="v2/posting/fbs/act/create",
                         method="POST",
-                        body=body)
+                        json=body)
         except Exception as err:
             logger.error("Не удалось создать акт поставки", err)
             return False
@@ -145,7 +145,7 @@ class OzonPosting:
         while True:
             raw_data = api.request(url="v3/posting/fbs/list",
                                    method="POST",
-                                   body=body)
+                                   json=body)
 
             if not raw_data.get('result', None):
                 logger.error("Не смогли получить список заказов магазина Ozon")

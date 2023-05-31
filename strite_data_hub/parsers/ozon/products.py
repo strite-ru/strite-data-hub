@@ -63,7 +63,7 @@ class OzonProduct:
         while True:
             raw_data = api.request(url="v2/product/list",
                                    method="POST",
-                                   body=body)
+                                   json=body)
 
             if not raw_data.get('result', False):
                 logger.error(msg := "Не смогли получить список товаров магазина Ozon")
@@ -94,7 +94,7 @@ class OzonProduct:
             body = {
                 'offer_id': chunk
             }
-            raw_product_details = api.request(url="v2/product/info/list", body=body)
+            raw_product_details = api.request(url="v2/product/info/list", json=body)
 
             if not raw_product_details.get('result', False):
                 logger.error(msg := "Не смогли получить список товаров магазина Ozon (details)")
