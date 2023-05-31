@@ -45,8 +45,7 @@ def get_basic_predication_supplies_fof(size_supply: int,
                                        consumption: int,
                                        period: timedelta,
                                        avg_delivery_time: timedelta,
-                                       deviation_sales: float,
-                                       current_stock: int) -> PredictionFOF:
+                                       deviation_sales: float) -> PredictionFOF:
     """Расчет объема поставок
     :param size_supply: оптимальный размер поставки
     :param consumption: расход товара за период
@@ -67,6 +66,8 @@ def get_basic_predication_supplies_fof(size_supply: int,
 
     result.safety_stock = 1.645 * deviation_sales * math.sqrt(result.order_date.days*avg_delivery_time.days)
 
-    result.max_stock = current_stock + result.safety_stock
+    result.current_stock_date = timedelta(days=avg_consumption_per_day*(result.order_date.total_seconds()/timedelta(days=1).total_seconds()+avg_delivery_time.total_seconds()/timedelta(days=1).total_seconds()))
+
+    result.max_stock = result.safety_stock + size_supply
 
     return result

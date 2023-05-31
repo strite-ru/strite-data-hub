@@ -1,1 +1,1 @@
-from .main import get_basic_predication_supplies_fos
+from .main import get_basic_predication_supplies_fos, get_basic_predication_supplies_fof

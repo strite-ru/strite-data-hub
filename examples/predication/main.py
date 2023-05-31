@@ -70,7 +70,10 @@ predication = get_basic_predication_supplies_fof(size_supply=10,
                                                  avg_delivery_time=timedelta(days=3),  # Матрицы доставки
                                                  deviation_sales=rms_deviation,        # Среднеквадратичное отклонение расхода запаса
                                                  period=timedelta(days=30),            # Период поставки
-                                                 consumption=total_sold,               # Расход запаса
-                                                 current_stock=50)
+                                                 consumption=total_sold)
 
 print(f"Предиктивный расчет c фиксированным периодом поставки: {predication}")
+
+print(f"Предполагаемая дата поставки: {datetime.now() + predication.order_date}")
+
+

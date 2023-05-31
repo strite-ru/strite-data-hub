@@ -26,7 +26,9 @@ class PredictionFOF:
         safety_stock:        Страховой запас
         max_stock:           Максимальный запас
         order_date:          Периодичность заказа
+        current_stock_date:  Текущий запас (дней)
     """
     safety_stock: float = 0
     max_stock: float = 0
     order_date: timedelta = timedelta(days=0)
+    current_stock_date: timedelta = timedelta(days=0)
