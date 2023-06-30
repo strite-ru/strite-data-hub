@@ -63,7 +63,7 @@ def get_basic_predication_supplies_fof(size_supply: int,
 
     # Время отправления заказа
     result.order_date = timedelta(
-        days=period.total_seconds()/(timedelta(days=1).total_seconds()*size_supply+current_stock)/consumption
+        days=(period.total_seconds()/timedelta(days=1).total_seconds())-current_stock/avg_consumption_per_day
     )
 
     result.safety_stock = 1.645 * deviation_sales * math.sqrt(result.order_date.days*avg_delivery_time.days)
