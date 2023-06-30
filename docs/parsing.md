@@ -1,6 +1,6 @@
 # Парсинг данных
 
-Данный раздел описывает формат данных, полченный от маркетплейсов
+Данный раздел описывает формат данных, полученный от маркетплейсов
 и необходимый для дальнейшего использования другими функциями
 библиотеки
 
@@ -39,7 +39,7 @@ class TransactionData:
     amount: Decimal = 0
 ```
 
-#### Полчить список всех товаров магазина
+#### Получить список всех товаров магазина
 ```python
 from strite_data_hub.parsers.ozon import OzonProduct, OzonAPI
 
@@ -296,7 +296,7 @@ my_market = WildberriesAPI(marketplace="xxx", statistics="sss")
 supplies = WbSupply.get_supplies(api=my_market)
 ```
 
-#### Получить содержение поставки
+#### Получить содержание поставки
 
 ```python
 from strite_data_hub.parsers.wildberries import WildberriesAPI, WbSupply
