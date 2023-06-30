@@ -42,12 +42,15 @@ def get_basic_predication_supplies_fos(size_supply: int,
 
 
 def get_basic_predication_supplies_fof(size_supply: int,
+                                       avg_consumption_per_day: float,
                                        consumption: int,
                                        period: timedelta,
                                        avg_delivery_time: timedelta,
-                                       deviation_sales: float) -> PredictionFOF:
+                                       deviation_sales: float,
+                                       current_stock: int) -> PredictionFOF:
     """Расчет объема поставок
     :param size_supply: оптимальный размер поставки
+    :param avg_consumption_per_day: Средняя интенсивность потребления товаров
     :param consumption: расход товара за период
     :param period: период
     :param avg_delivery_time:  (Tc) время от наступления точки заказа, времени на сборку, времени доставки на склад и приемки на складе (дни) See for ozon: https://docs.ozon.ru/retail/contract/komissions/
@@ -58,11 +61,10 @@ def get_basic_predication_supplies_fof(size_supply: int,
     """
     result = PredictionFOF()
 
-    # Средняя интенсивность потребления товаров
-    avg_consumption_per_day = consumption/period.total_seconds()*timedelta(days=1).total_seconds()
-
     # Время отправления заказа
-    result.order_date = timedelta(days=period.total_seconds()/timedelta(days=1).total_seconds()*size_supply/consumption)
+    result.order_date = timedelta(
+        days=period.total_seconds()/(timedelta(days=1).total_seconds()*size_supply+current_stock)/consumption
+    )
 
     result.safety_stock = 1.645 * deviation_sales * math.sqrt(result.order_date.days*avg_delivery_time.days)
 

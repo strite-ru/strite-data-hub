@@ -18,10 +18,12 @@ def test_basic_prediction_fos():
 
 def test_basic_prediction_fof():
     result = get_basic_predication_supplies_fof(size_supply=50,
+                                                avg_consumption_per_day=173,
                                                 consumption=527,
                                                 period=timedelta(days=173),
                                                 avg_delivery_time=timedelta(days=6),
-                                                deviation_sales=6.0)
+                                                deviation_sales=6.0,
+                                                current_stock=60)
 
     assert result.safety_stock == 96.70585504507987
     assert result.max_stock == 146.7058550450799

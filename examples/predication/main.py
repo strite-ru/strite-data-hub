@@ -66,11 +66,31 @@ print(f"Даты между поставками: {days}")
 print(f"Предполагаемая дата поставки: {datetime.now() + timedelta(days=days)}")
 
 # Предиктовый рачет c фиксированным периодом поставки
-predication = get_basic_predication_supplies_fof(size_supply=10,
-                                                 avg_delivery_time=timedelta(days=3),  # Матрицы доставки
+print("---------------------------------------------------")
+print("Предиктовый рачет c фиксированным периодом поставки")
+
+avg_delivery_time = timedelta(days=3)
+print(f"Время выполнения заказа: {avg_delivery_time.days}")
+
+size_supply = 10
+print(f"Оптимальная партия поставки: {size_supply}")
+
+period = timedelta(days=15)
+print(f"Длительность периода: {period}")
+
+print(f"Средняя интенсивность потребления: {avg_count_per_day}")
+
+rms_deviation = 6.0
+print(f"Срасхода: {rms_deviation}")
+
+predication = get_basic_predication_supplies_fof(size_supply=size_supply,
+                                                 avg_consumption_per_day=avg_count_per_day,
+                                                 avg_delivery_time=avg_delivery_time,  # Матрицы доставки
                                                  deviation_sales=rms_deviation,        # Среднеквадратичное отклонение расхода запаса
-                                                 period=timedelta(days=30),            # Период поставки
-                                                 consumption=total_sold)
+                                                 period=period,            # Период
+                                                 consumption=total_sold,
+                                                 current_stock=5
+                                                 )
 
 print(f"Предиктивный расчет c фиксированным периодом поставки: {predication}")
 
