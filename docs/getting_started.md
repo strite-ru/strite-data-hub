@@ -39,7 +39,7 @@ pip install git+https://github.com/strite-ru/strite-data-hub.git
 
 ## Шаг 2. Импорт библиотеки
 
-### Инициализация объекта с доступами Ozon (для получение данных из маркетплейса)
+### Инициализация объекта с доступами Ozon (для получения данных из маркетплейса)
 
 ```python
 from strite_data_hub.parsers.ozon import OzonAPI
@@ -48,7 +48,7 @@ from strite_data_hub.parsers.ozon import OzonAPI
 ozon_api = OzonAPI(client_id="Ваш_Client-Id", key="Ваш_Api-Key")
 ```
 
-### Инициализация объекта с доступами Wilderries (для получение данных из маркетплейса)
+### Инициализация объекта с доступами Wilderries (для получения данных из маркетплейса)
 
 ```python
 from strite_data_hub.parsers.wildberries import WildberriesAPI

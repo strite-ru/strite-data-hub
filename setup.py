@@ -9,6 +9,7 @@ setup(
     author="Alex Ruban",
     author_email="ruban_1998@hotmail.com",
     description="",
+    long_description="/README_ru.md",
     py_modules=["strite_data_hub"],
 
     packages=find_packages(exclude=['tests', 'tests.*']),
