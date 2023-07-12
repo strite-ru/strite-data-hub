@@ -29,3 +29,4 @@ def test_basic_prediction_fof():
     assert result.max_stock == 126.45269125413442
     assert result.order_date.days == 10
     assert result.current_stock_date.days == 49
+    

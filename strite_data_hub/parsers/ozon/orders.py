@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Self, Optional, Literal
+from typing import Self, Optional, Literal, List
 
 from .api import OzonAPI
 from .products import OzonProduct
@@ -46,12 +46,13 @@ class OzonPosting:
 
     orderId: str  # order_number
     postingId: str  # posting_number
-    barcode: str  # barcodes.lower_barcode
-    processTo: datetime
+    barcode: Optional[str]  # barcodes.lower_barcode
+    processTo: Optional[datetime]
     shipmentAt: Optional[datetime]
     deliverAt: Optional[datetime]
     orders: list[OzonOrder]
     status: str
+    warehouse_id: Optional[str]
 
     def close(self, api: OzonAPI) -> None:
         def to_dict(value: OzonOrder) -> dict:
@@ -88,16 +89,15 @@ class OzonPosting:
         return cls(
             orderId=raw_data['order_number'],
             postingId=raw_data['posting_number'],
-            barcode=raw_data['barcodes']['lower_barcode'],
-            processTo=datetime.strptime(raw_data['in_process_at'], '%Y-%m-%dT%H:%M:%SZ'),
-            shipmentAt=datetime.strptime(raw_data['shipment_date'], '%Y-%m-%dT%H:%M:%SZ') if raw_data[
-                'shipment_date'] else None,
-            deliverAt=datetime.strptime(raw_data['delivering_date'], '%Y-%m-%dT%H:%M:%SZ') if raw_data[
-                'delivering_date'] else None,
+            barcode=raw_data['barcodes']['lower_barcode'] if raw_data.get('barcodes', None) else None,
+            processTo=datetime.strptime(raw_data['in_process_at'][:16], '%Y-%m-%dT%H:%M') if raw_data.get('in_process_at', None) else None,
+            shipmentAt=datetime.strptime(raw_data['shipment_date'][:16], '%Y-%m-%dT%H:%M') if raw_data.get('shipment_date', None)  else None,
+            deliverAt=datetime.strptime(raw_data['delivering_date'][:16], '%Y-%m-%dT%H:%M') if raw_data.get('delivering_date', None)  else None,
             orders=[OzonOrder(price=float(_o['price']), vendor_code=_o['offer_id'], sku=_o['sku'],
                               quantity=_o['quantity'])
                     for _o in raw_data['products']],
-            status=raw_data['status']
+            status=raw_data['status'],
+            warehouse_id=raw_data['analytics_data']['warehouse_id'] if raw_data.get('analytics_data', None) else None
         )
 
     @classmethod
@@ -117,7 +117,7 @@ class OzonPosting:
     @classmethod
     def get_postings(cls,
                      api: OzonAPI,
-                     status: Optional[Literal['awaiting_packaging', 'awaiting_deliver', 'delivering']]) -> list[Self]:
+                     status: Optional[Literal['awaiting_packaging', 'awaiting_deliver', 'delivering']]) -> List[Self]:
         """
         Получение списка отправлений по статусу в Ozon
         :param api:
@@ -158,3 +158,27 @@ class OzonPosting:
                 body['offset'] += body['limit']
             else:
                 break
+
+    @classmethod
+    def get_fbo_posting_by_posting_number(cls,
+                                          api: OzonAPI,
+                                          posting_number: str) -> Self:
+        body = {
+            "posting_number": posting_number,
+            "translit": False,
+            "with": {
+                "analytics_data": True,
+                "barcodes": True,
+                "financial_data": False,
+            }
+        }
+
+        raw_data = api.request(url="v2/posting/fbo/get",
+                               method="POST",
+                               json=body)
+
+        if not raw_data.get('result', None):
+            logger.error("Не смогли получить список заказов магазина Ozon")
+            raise Exception("Не смогли получить список заказов магазина Ozon")
+
+        return cls.parse_from_dict(raw_data['result'])

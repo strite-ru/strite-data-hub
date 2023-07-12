@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Self, Optional
+from typing import Self, Optional, List
 
 from strite_data_hub.dataclasses import TransactionData
 from ..utils import get_transaction_type
@@ -38,20 +38,25 @@ class OzonTransaction(TransactionData):
     def get_transactions(cls,
                          api: OzonAPI,
                          start_date: datetime = datetime.now() - timedelta(days=30),
-                         end_date: datetime = datetime.now()) -> list[Self]:
+                         end_date: datetime = datetime.now(),
+                         operation_types: Optional[list[str]] = None) -> List[Self]:
+
+        if operation_types is None:
+            operation_types = [
+                "OperationAgentDeliveredToCustomer",
+                "OperationItemReturn",
+                "ClientReturnAgentOperation",
+                "OperationReturnGoodsFBSofRMS",
+                "OperationMarketplaceServicePremiumCashback"
+            ]
+
         body = {
             "filter": {
                 "date": {
                     "from": start_date.strftime("%Y-%m-%dT00:00:00.000Z"),
                     "to": end_date.strftime("%Y-%m-%dT23:59:59.999Z")
                 },
-                "operation_type": [
-                    "OperationAgentDeliveredToCustomer",
-                    "OperationItemReturn",
-                    "ClientReturnAgentOperation",
-                    "OperationReturnGoodsFBSofRMS",
-                    "OperationMarketplaceServicePremiumCashback"
-                ],
+                "operation_type": operation_types,
                 "transaction_type": "all"
             },
             "page": 1,
