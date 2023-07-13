@@ -1,32 +1,32 @@
-from strite_data_hub.prediction.supplies.basic import get_basic_predication_supplies_fos, get_basic_predication_supplies_fof
+from strite_data_hub.prediction.supplies.basic import get_basic_predication_supplies_fos, \
+    get_basic_predication_supplies_fof
 
 from datetime import timedelta
 
 
-
 def test_basic_prediction_fos():
-    result = get_basic_predication_supplies_fos(size_supply=90,
-                                                avg_delivery_time=timedelta(days=6),
-                                                deviation_delivery_time=1,
+    result = get_basic_predication_supplies_fos(current_stock=50,
+                                                avg_consumption=3.0,
                                                 deviation_sales=6.0,
-                                                avg_consumption=3.0)
+                                                size_supply=30,
+                                                supply_delivery_time=timedelta(days=3))
 
-    assert result.safety_stock == 24.34377692553068
-    assert result.max_stock == 114.34377692553068
-    assert result.order_point == 42.343776925530676
-    assert result.average_stock_level == 69.34377692553068
+    assert result.safety_stock == 19.113172813533602
+    assert result.max_stock == 49.1131728135336
+    assert result.order_point == 28.113172813533602
+    assert result.supply_date.days == 7
+    assert result.average_stock_level == 34.1131728135336
+
 
 def test_basic_prediction_fof():
-    result = get_basic_predication_supplies_fof(size_supply=50,
-                                                avg_consumption_per_day=3.04,
-                                                consumption=527,
-                                                period=timedelta(days=30),
-                                                avg_delivery_time=timedelta(days=6),
+    result = get_basic_predication_supplies_fof(current_stock=50,
+                                                avg_consumption=3.0,
                                                 deviation_sales=6.0,
-                                                current_stock=60)
+                                                supply_delivery_time=timedelta(days=3),
+                                                period=timedelta(days=7))
 
-    assert result.safety_stock == 76.45269125413442
-    assert result.max_stock == 126.45269125413442
-    assert result.order_date.days == 10
-    assert result.current_stock_date.days == 49
-    
+    assert result.safety_stock == 60.03686617404343
+    assert result.max_stock == 90.03686617404344
+    assert result.supply_date.days == 6
+    assert result.supply_size == 30
+    assert result.average_stock_level == 75.03686617404344

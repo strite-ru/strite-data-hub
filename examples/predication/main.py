@@ -5,7 +5,8 @@
 import math
 import logging
 from strite_data_hub.parsers.ozon.api import OzonAPI
-from strite_data_hub.prediction.supplies.basic.main import get_basic_predication_supplies_fos
+from strite_data_hub.prediction.supplies.basic.main import get_basic_predication_supplies_fos, \
+    get_basic_predication_supplies_fof
 from datetime import datetime, timedelta
 from strite_data_hub.parsers.ozon.finance import OzonTransaction
 from strite_data_hub.parsers.ozon.products import OzonProduct
@@ -14,7 +15,6 @@ from strite_data_hub.parsers.ozon.orders import OzonPosting
 from rich.console import Console
 from rich.live import Live
 from rich.table import Table
-
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -37,6 +37,8 @@ def calc(api: OzonAPI, period_transactions: int = 29):
     table.add_column("Среднеквадратичное отклонение", justify="center")
     table.add_column("FOS\nДней до поставки", justify="center")
     table.add_column("FOS\nПредполагаемая дата поставки", justify="center")
+    table.add_column("FOF\nРазмер поставки", justify="center")
+    table.add_column("FOF\nДней до поставки", justify="center")
 
     # Получаем данные о транзакциях
     transactions = list(OzonTransaction.get_transactions(
@@ -100,16 +102,10 @@ def calc(api: OzonAPI, period_transactions: int = 29):
                 avg_count_per_day = total_sold / period_transactions
 
                 # TODO add calc
-                rms_deviation = 1.0
+                rms_deviation = 6.0
 
                 # Среднее время доставки (из матрицы доставки) + обработки
                 avg_delivery_time = timedelta(days=3)
-
-                predication = get_basic_predication_supplies_fos(size_supply=10,
-                                                                 avg_delivery_time=avg_delivery_time,
-                                                                 deviation_sales=rms_deviation,
-                                                                 avg_consumption=avg_count_per_day,
-                                                                 deviation_delivery_time=1)
 
                 # Текущий остаток на складе
                 stock_search = [s for s in stocks if s.vendor_code == product.vendor_code and s.warehouse == warehouse]
@@ -119,8 +115,17 @@ def calc(api: OzonAPI, period_transactions: int = 29):
                 else:
                     stock = stock_search[0].free_to_sell_amount
 
-                # Даты между поставками
-                days = (stock - predication.order_point) / avg_count_per_day
+                predication_fos = get_basic_predication_supplies_fos(current_stock=stock,
+                                                                     avg_consumption=avg_count_per_day,
+                                                                     deviation_sales=rms_deviation,
+                                                                     size_supply=10,
+                                                                     supply_delivery_time=avg_delivery_time)
+                predication_fof = get_basic_predication_supplies_fof(current_stock=stock,
+                                                                     avg_consumption=avg_count_per_day,
+                                                                     deviation_sales=rms_deviation,
+                                                                     supply_delivery_time=avg_delivery_time,
+                                                                     period=timedelta(days=7))
+
 
                 table.add_row(
                     "",
@@ -129,8 +134,10 @@ def calc(api: OzonAPI, period_transactions: int = 29):
                     str(total_sold),
                     "{:.2f}".format(avg_count_per_day),
                     str(rms_deviation),
-                    str(int(days)),
-                    (datetime.now() + timedelta(days=days)).strftime("%d.%m.%Y")
+                    str(predication_fos.supply_date.days),
+                    (datetime.now() + predication_fos.supply_date).strftime("%d.%m.%Y"),
+                    str(predication_fof.supply_size),
+                    (datetime.now() + predication_fof.supply_date).strftime("%d.%m.%Y"),
                 )
 
 

@@ -10,11 +10,13 @@ class PredictionFOS:
         safety_stock:        Страховой запас
         max_stock:           Максимальный запас
         order_point:         Точка заказа
+        supply_date:         Дата поставки
         average_stock_level: Средний уровень запаса
     """
     safety_stock: float = 0
     max_stock: float = 0
     order_point: float = 0
+    supply_date: timedelta = timedelta(days=0)
     average_stock_level: float = 0
 
 
@@ -25,10 +27,12 @@ class PredictionFOF:
     Attributes:
         safety_stock:        Страховой запас
         max_stock:           Максимальный запас
-        order_date:          Периодичность заказа
-        current_stock_date:  Текущий запас (дней)
+        supply_size:         Размер заказа
+        supply_date:         Дата поставки
+        average_stock_level: Средний уровень запаса
     """
-    safety_stock: float = 0
-    max_stock: float = 0
-    order_date: timedelta = timedelta(days=0)
-    current_stock_date: timedelta = timedelta(days=0)
+    safety_stock: int = 0
+    max_stock: int = 0
+    supply_size: int = 0
+    supply_date: timedelta = timedelta(days=0)
+    average_stock_level: float = 0
