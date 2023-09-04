@@ -11,7 +11,7 @@ class SuppliesCatBoost:
 
     def train(self):
         # remove key log_sales_total in data
-        x_train = self.data.drop(['log_sales_total', 'vendor_code', 'warehouse'], axis=1)
+        x_train = self.data.drop(['log_sales_total', 'vendor_code', 'cluster'], axis=1)
         y_train = self.data.get('log_sales_total')
         self.model.fit(x_train, y_train.values)
 
