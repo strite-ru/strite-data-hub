@@ -13,7 +13,7 @@ setup(
     py_modules=["strite_data_hub"],
     packages=find_packages(exclude=['tests', 'tests.*']),
     install_requires=[
-        "requests==2.28.2",
+        "requests==2.31.0",
         "catboost==1.2.1",
         "urllib3==2.0.4"
     ]
