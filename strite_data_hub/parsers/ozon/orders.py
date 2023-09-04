@@ -182,3 +182,102 @@ class OzonPosting:
             raise Exception("Не смогли получить список заказов магазина Ozon")
 
         return cls.parse_from_dict(raw_data['result'])
+
+
+@dataclass(frozen=True)
+class OzonFBOPosting:
+    """
+    Данные по отправлению FBO
+    """
+
+    orderId: str  # order_number
+    postingId: str  # posting_number
+    processTo: Optional[datetime]
+    orders: list[OzonOrder]
+    status: Literal['awaiting_packaging', 'awaiting_deliver', 'delivering', 'delivered', 'cancelled']
+    warehouse: dict
+
+    @classmethod
+    def parse_from_dict(cls, raw_data: dict) -> Self:
+        return cls(
+            orderId=raw_data['order_number'],
+            postingId=raw_data['posting_number'],
+            processTo=datetime.strptime(raw_data['in_process_at'][:16], '%Y-%m-%dT%H:%M') if raw_data.get(
+                'in_process_at', None) else None,
+            orders=[OzonOrder(price=float(_o['price']), vendor_code=_o['offer_id'], sku=_o['sku'],
+                              quantity=_o['quantity'])
+                    for _o in raw_data['products']],
+            status=raw_data['status'],
+            warehouse={
+                "id": raw_data['analytics_data']['warehouse_id'],
+                "name": raw_data['analytics_data']['warehouse_name'],
+                "city": raw_data['analytics_data']['city'],
+                "region": raw_data['analytics_data']['region'],
+                "delivery_type": raw_data['analytics_data']['delivery_type'],
+            }
+        )
+
+    def to_dict(self) -> dict:
+        return {
+            "order_number": self.orderId,
+            "posting_number": self.postingId,
+            "in_process_at": self.processTo.strftime('%Y-%m-%dT%H:%M:%SZ') if self.processTo else None,
+            "products": [
+                {
+                    "price": _o.price,
+                    "offer_id": _o.vendor_code,
+                    "sku": _o.sku,
+                    "quantity": _o.quantity
+                }
+                for _o in self.orders
+            ],
+            "status": self.status,
+            "warehouse_id": self.warehouse['id'],
+        }
+
+    @classmethod
+    def get_postings(cls,
+                     api: OzonAPI,
+                     status: Optional[Literal['awaiting_packaging', 'awaiting_deliver', 'delivering', 'delivered', 'cancelled']],
+                     date_from: datetime = datetime.now() - timedelta(days=15),
+                     date_to: datetime = datetime.now()) -> List[Self]:
+        """
+        Получение списка отправлений по статусу в Ozon
+        :param api:
+        :param status:
+        :param date_from:
+        :param date_to:
+        :return:
+        """
+        body = {
+            "dir": "ASC",
+            "filter": {
+                "since": f"{date_from.date()}T00:00:00Z",
+                "status": status,
+                "to": f"{date_to.date()}T23:59:59Z"
+            },
+            "limit": 100,
+            "offset": 0,
+            "translit": False,
+            "with": {
+                "analytics_data": True,
+                "financial_data": False
+            }
+        }
+
+        while True:
+            raw_data = api.request(url="v2/posting/fbo/list",
+                                   method="POST",
+                                   json=body)
+
+            if not raw_data.get('result', None):
+                logger.error("Не смогли получить список заказов магазина Ozon")
+                raise Exception("Не смогли получить список заказов магазина Ozon")
+
+            for _p in raw_data['result']:
+                yield cls.parse_from_dict(_p)
+
+            if len(raw_data['result']) == body['limit']:
+                body['offset'] += body['limit']
+            else:
+                break
