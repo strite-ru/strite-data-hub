@@ -1,5 +1,7 @@
+from decimal import Decimal
 from dataclasses import dataclass
-from typing import Self, Optional, Literal
+from datetime import datetime
+from typing import Self, Optional, Literal, List
 from .api import OzonAPI
 import logging
 
@@ -18,14 +20,31 @@ class OzonSku:
 
 @dataclass(frozen=True)
 class OzonProduct:
-    id: int  # id
-    vendor_code: str  # offer_id
-    name: str  # name
-    sizes: list[OzonSku]  # sizes
-    image: str  # primary_image
-    barcode: str  # barcode
+    id: int                     # id
+    vendor_code: str            # offer_id
+    name: str                   # name
+    sizes: list[OzonSku]        # sizes
+    image: str                  # primary_image
+    barcode: str                # barcode
+    category_id: int            # category_id
 
-    # category_id: int https://docs.ozon.ru/api/seller/#operation/CategoryAPI_GetCategoryTree
+    price: Decimal              # price
+    old_price: Decimal          # old_price
+    currency_code: str          # currency_code
+
+    sku: int                    # sku
+    fbo_sku: Optional[int]      # fbo_sku remove
+    fbs_sku: Optional[int]      # fbs_sku remove
+
+    is_kgt: bool                # is_kgt Габаритный товар
+
+    rating: Optional[str]       # rating
+
+    is_discounted: bool         # is_discounted
+    has_discounted_item: bool   # has_discounted_item
+
+    created_at: datetime        # created_at
+    updated_at: datetime        # updated_at
 
     @classmethod
     def parse_from_dict(cls, raw_data: dict) -> Self:
@@ -40,7 +59,20 @@ class OzonProduct:
             name=raw_data['name'],
             sizes=[OzonSku(type=_s['source'], id=_s['sku']) for _s in raw_data['sources']],
             image=raw_data['primary_image'],
-            barcode=raw_data['barcode']
+            barcode=raw_data['barcode'],
+            category_id=raw_data['category_id'],
+            price=Decimal(raw_data['price']),
+            old_price=Decimal(raw_data['old_price']),
+            currency_code=raw_data['currency_code'],
+            sku=raw_data['sku'],
+            fbo_sku=raw_data.get('fbo_sku', None),
+            fbs_sku=raw_data.get('fbs_sku', None),
+            is_kgt=raw_data.get('is_kgt', False),
+            rating=raw_data.get('rating', None),
+            is_discounted=raw_data.get('is_discounted', False),
+            has_discounted_item=raw_data.get('has_discounted_item', False),
+            created_at=datetime.strptime(raw_data['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ"),
+            updated_at=datetime.strptime(raw_data['updated_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
         )
 
     @classmethod
@@ -105,4 +137,12 @@ class OzonProduct:
 
     def update_stock_balance(self, api: OzonAPI, new_stock_value: int):
         """Обновление (измение) числа товара на маркетплейсе"""
-        pass
+        raise NotImplementedError
+
+    def archive(self, api: OzonAPI):
+        """Архивирование товара на маркетплейсе"""
+        raise NotImplementedError
+
+    def unarchive(self, api: OzonAPI):
+        """Разархивирование товара на маркетплейсе"""
+        raise NotImplementedError

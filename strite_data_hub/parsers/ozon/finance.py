@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from decimal import Decimal
 from datetime import datetime, timedelta
 from typing import Self, Optional, List
 
@@ -26,7 +27,7 @@ class OzonTransaction(TransactionData):
             order_type=0 if raw_data['posting']['delivery_schema'] == 'FBO' else 1,
             order_date=datetime.strptime(raw_data['posting']['order_date'], "%Y-%m-%d %X"),
             commission=raw_data.get('amount', 0) if tr_type == 3 else raw_data.get('sale_commission', 0),
-            delivery=sum(service['price'] for service in raw_data.get('services', [])),
+            delivery=Decimal(sum(service['price'] for service in raw_data.get('services', []))),
             quantity=len(raw_data['items']) if tr_type == 0 else 0,
             refund=len(raw_data['items']) if tr_type == 2 else 0,
             amount=raw_data.get('accruals_for_sale', 0),
