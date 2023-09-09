@@ -10,6 +10,8 @@ This is a data hub for the Strite project. It is a collection of data sources an
 
 ## Documentation
 
+- [Полная документация по библиотеке](https://strite-ru.github.io/strite-data-hub/)
+
 * [How to bootstrap](#how-to-bootstrap)
   - [Requirements](#requirements)
     - [Install dependencies](#install-dependencies)
