@@ -1,8 +1,8 @@
-from strite_data_hub.parsers.ozon import OzonPosting
+from strite_data_hub.parsers.ozon import OzonFBOPosting, OzonFBSPosting, OzonPosting
 
 
-def test_ozon_posting_parse():
-    """Test OzonPosting.parse_from_dict"""
+def test_ozon_fbs_posting_parse():
+    """Test OzonFBSPosting.parse_from_dict"""
 
     di_data = {
         "result": {
@@ -313,4 +313,95 @@ def test_ozon_posting_parse():
     }
 
     for item in di_data['result']['postings']:
-        assert OzonPosting.parse_from_dict(item)
+        assert OzonFBSPosting.parse_from_dict(item)
+
+
+def test_ozon_fbo_posting_parse():
+    """Test OzonFBOPosting.parse_from_dict"""
+
+    di_data = {
+        "result": {
+            "postings": [
+                {
+                    "order_id": 354680487,
+                    "order_number": "16965409-0014",
+                    "posting_number": "16965409-0014-1",
+                    "status": "delivered",
+                    "products": [
+                        {
+                            "sku": 160249683,
+                            "offer_id": "УТ-00000979",
+                            "name": "Так говорил Омар Хайям. Жизнеописание. Афоризмы и рубайят. Классика в словах и картинках",
+                            "quantity": 1,
+                            "price": "81.00",
+                            "currency_code": "RUB"
+                        }
+                    ],
+                    "in_process_at": "2021-09-01T00:25:30.120000Z",
+                    "cancel_reason_id": 0,
+                    "created_at": "2021-09-01T00:23:45.607000Z",
+                    "analytics_data": {
+                        "region": "РОСТОВСКАЯ ОБЛАСТЬ",
+                        "city": "Ростов-на-Дону",
+                        "delivery_type": "PVZ",
+                        "is_premium": False,
+                        "payment_type_group_name": "Карты оплаты",
+                        "warehouse_id": 17717042026000,
+                        "warehouse_name": "РОСТОВ-НА-ДОНУ_РФЦ",
+                        "is_legal": False
+                    },
+                    "financial_data": {
+                        "products": [
+                            {
+                                "commission_amount": 12.15,
+                                "commission_percent": 15,
+                                "payout": 68.85,
+                                "product_id": 160249683,
+                                "currency_code": "RUB",
+                                "old_price": 115,
+                                "price": 81,
+                                "total_discount_value": 34,
+                                "total_discount_percent": 29.57,
+                                "actions": [
+                                    "Системная виртуальная скидка селлера"
+                                ],
+                                "picking": None,
+                                "quantity": 0,
+                                "client_price": "",
+                                "item_services": {
+                                    "marketplace_service_item_fulfillment": -31.5,
+                                    "marketplace_service_item_pickup": 0,
+                                    "marketplace_service_item_dropoff_pvz": 0,
+                                    "marketplace_service_item_dropoff_sc": 0,
+                                    "marketplace_service_item_dropoff_ff": 0,
+                                    "marketplace_service_item_direct_flow_trans": -5,
+                                    "marketplace_service_item_return_flow_trans": 0,
+                                    "marketplace_service_item_deliv_to_customer": -20,
+                                    "marketplace_service_item_return_not_deliv_to_customer": 0,
+                                    "marketplace_service_item_return_part_goods_customer": 0,
+                                    "marketplace_service_item_return_after_deliv_to_customer": 0
+                                }
+                            }
+                        ],
+                        "posting_services": {
+                            "marketplace_service_item_fulfillment": 0,
+                            "marketplace_service_item_pickup": 0,
+                            "marketplace_service_item_dropoff_pvz": 0,
+                            "marketplace_service_item_dropoff_sc": 0,
+                            "marketplace_service_item_dropoff_ff": 0,
+                            "marketplace_service_item_direct_flow_trans": 0,
+                            "marketplace_service_item_return_flow_trans": 0,
+                            "marketplace_service_item_deliv_to_customer": 0,
+                            "marketplace_service_item_return_not_deliv_to_customer": 0,
+                            "marketplace_service_item_return_part_goods_customer": 0,
+                            "marketplace_service_item_return_after_deliv_to_customer": 0
+                        }
+                    },
+                    "additional_data": []
+                }
+            ]
+        }
+    }
+
+    for item in di_data['result']['postings']:
+        assert OzonFBOPosting.parse_from_dict(item)
